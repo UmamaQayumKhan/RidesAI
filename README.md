@@ -2,8 +2,7 @@
 
 Built by **Umama Qayum Khan**, BS Computer Science, Iqra University Islamabad.
 
-📄 **[Full project documentation with all screens (PDF)](AgentDesk_Project_Documentation.pdf)** · 🎬 [Demo video](docs/AgentDesk_Demo.mp4) · 🎤 [Interview guide](docs/INTERVIEW_GUIDE.md)
-
+📄 **[Full project documentation with all screens (PDF)](AgentDesk_Project_Documentation.pdf)** · 🎬 [Demo video](docs/AgentDesk_Demo.mp4) · 
 ## 🎬 Demo
 
 ![AgentDesk demo](docs/demo.gif)
