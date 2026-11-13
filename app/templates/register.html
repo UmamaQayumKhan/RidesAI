@@ -1,0 +1,16 @@
+{% extends "_auth_layout.html" %}
+{% block title %}Register{% endblock %}
+{% block form %}
+<h1>Create your account</h1>
+<p class="muted">Set up your AI agent in under a minute.</p>
+{% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
+<form method="post" action="/register" class="form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+  <label>Business name<input name="business_name" value="{{ business_name or '' }}" required minlength="2" maxlength="120"></label>
+  <label>Email<input type="email" name="email" value="{{ email or '' }}" required></label>
+  <label>Password <span class="muted small">(at least 8 characters)</span><input type="password" name="password" required minlength="8"></label>
+  <label class="check"><input type="checkbox" name="sample_data" value="true" checked> Add sample products and demo orders</label>
+  <button class="btn btn-primary btn-block" type="submit">Create account</button>
+</form>
+<p class="muted center">Already have an account? <a href="/login">Log in</a></p>
+{% endblock %}

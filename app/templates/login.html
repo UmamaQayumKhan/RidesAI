@@ -1,0 +1,16 @@
+{% extends "_auth_layout.html" %}
+{% block title %}Log in{% endblock %}
+{% block form %}
+<h1>Welcome back</h1>
+<p class="muted">Log in to your business dashboard.</p>
+{% for f in pop_flashes(request) %}<div class="alert alert-{{ f.category }}">{{ f.message }}</div>{% endfor %}
+{% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
+<form method="post" action="/login" class="form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+  <label>Email<input type="email" name="email" value="{{ email or '' }}" required autofocus></label>
+  <label>Password<input type="password" name="password" required></label>
+  <button class="btn btn-primary btn-block" type="submit">Log in</button>
+</form>
+<p class="muted center">New here? <a href="/register">Create a business account</a></p>
+<div class="hint">Demo account (after running the seed script): <b>demo@example.com</b> / <b>demo12345</b></div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Conversation{% endblock %}
+{% block heading %}{{ conv.customer.name or ('+' ~ conv.customer.phone) }}{% endblock %}
+{% block subheading %}+{{ conv.customer.phone }} · {{ 'Live WhatsApp' if conv.channel == 'whatsapp' else 'Demo simulator chat' }}{% endblock %}
+{% block actions %}<a href="/conversations" class="btn btn-ghost">← All conversations</a>{% endblock %}
+{% block content %}
+<div class="grid-2 grid-wide">
+  <div class="card chat-card">
+    <div class="chat-log" id="chatLog">
+      {% for m in conv.messages %}
+        <div class="bubble-row {{ 'right' if m.role in ('assistant', 'human_agent') else ('center' if m.role == 'system' else 'left') }}">
+          <div class="bubble bubble-{{ m.role }}">
+            <div class="bubble-who">{{ {'customer': 'Customer', 'assistant': business.agent_settings.agent_name ~ ' (AI)', 'human_agent': 'You (team)', 'system': 'System'}[m.role] }}</div>
+            <div class="bubble-text">{{ m.content }}</div>
+            <div class="bubble-time">{{ m.created_at|dt('%H:%M') }}</div>
+          </div>
+        </div>
+      {% else %}<div class="empty">No messages.</div>{% endfor %}
+    </div>
+    <form method="post" action="/conversations/{{ conv.id }}/reply" class="chat-input">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+      <input name="message" placeholder="Reply as a team member..." required maxlength="4000" autocomplete="off">
+      <button class="btn btn-primary" type="submit">Send</button>
+    </form>
+  </div>
+  <div class="stack">
+    <div class="card">
+      <div class="card-head"><h3>Who is replying?</h3>{% if conv.status == 'human' %}<span class="badge badge-human">Human</span>{% else %}<span class="badge badge-ai">AI agent</span>{% endif %}</div>
+      {% if conv.status == 'human' %}
+        <p class="small">The AI is paused for this chat.{% if conv.handoff_reason %} Reason: <i>{{ conv.handoff_reason }}</i>{% endif %}</p>
+        <form method="post" action="/conversations/{{ conv.id }}/status"><input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}"><input type="hidden" name="status" value="ai"><button class="btn btn-primary btn-block">Hand back to AI</button></form>
+      {% else %}
+        <p class="small">The AI agent is answering automatically.</p>
+        <form method="post" action="/conversations/{{ conv.id }}/status"><input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}"><input type="hidden" name="status" value="human"><button class="btn btn-ghost btn-block">Take over this chat</button></form>
+      {% endif %}
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Customer</h3></div>
+      <dl class="details">
+        <dt>Name</dt><dd>{{ conv.customer.name or '—' }}</dd>
+        <dt>Phone</dt><dd>+{{ conv.customer.phone }}</dd>
+        <dt>Address</dt><dd>{{ conv.customer.address or '—' }}</dd>
+      </dl>
+    </div>
+    {% if conv.pending_order %}
+    <div class="card">
+      <div class="card-head"><h3>Awaiting confirmation</h3></div>
+      <ul class="mini-list">{% for i in conv.pending_order['items'] %}<li><span>{{ i.quantity }} × {{ i.name }}</span><span>{{ i.line_total_cents|money(business.currency) }}</span></li>{% endfor %}</ul>
+      <p><b>Total: {{ conv.pending_order.total_cents|money(business.currency) }}</b></p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script>const log = document.getElementById('chatLog'); if (log) log.scrollTop = log.scrollHeight;</script>{% endblock %}

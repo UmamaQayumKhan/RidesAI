@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}WhatsApp Simulator{% endblock %}
+{% block heading %}WhatsApp Simulator <span class="pill pill-demo">DEMO MODE</span>{% endblock %}
+{% block subheading %}Chat as a customer. Same AI pipeline as live WhatsApp, but nothing is sent to Meta.{% endblock %}
+{% block content %}
+{% if not llm_configured %}
+<div class="alert alert-error">The AI is not configured. Add <code>OPENAI_API_KEY</code> to your <code>.env</code> file and restart the server.</div>
+{% endif %}
+<div class="sim-layout">
+  <div class="phone">
+    <div class="phone-head">
+      <div class="avatar avatar-sm">{{ business.name[:1]|upper }}</div>
+      <div><div class="phone-title">{{ business.name }}</div><div class="phone-sub" id="agentStatus">{{ business.agent_settings.agent_name }} · AI assistant</div></div>
+    </div>
+    <div class="phone-chat" id="simChat"><div class="sim-empty">Say hi to start. Try: <i>"What do you sell?"</i></div></div>
+    <form class="phone-input" id="simForm">
+      <input id="simMessage" placeholder="Type a message" autocomplete="off" maxlength="2000" required>
+      <button class="send-btn" type="submit" aria-label="Send">➤</button>
+    </form>
+  </div>
+
+  <div class="stack">
+    <div class="card">
+      <div class="card-head"><h3>Customer</h3></div>
+      <div class="form">
+        <label>Phone (acts as WhatsApp number)<input id="simPhone" value="923001112233"></label>
+        <label>Name (optional, like a WhatsApp profile)<input id="simName" placeholder="e.g. Umama Qayum Khan"></label>
+        <button class="btn btn-ghost" type="button" id="simReset">Start a new chat</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Try this flow</h3></div>
+      <ol class="steps">
+        <li>"Hi, do you have earbuds?"</li>
+        <li>"I want 2 of them"</li>
+        <li>"My name is Umama Qayum Khan, address House 5, Street 10, G-11/2, Islamabad"</li>
+        <li>Check the summary, then reply <b>"yes"</b></li>
+        <li>Open <a href="/orders">Orders</a>: the new order is there</li>
+      </ol>
+      <p class="small muted">Ask for "a human" to see the hand-off. Then reply from <a href="/conversations">Conversations</a> and your reply appears here.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='js/simulator.js') }}"></script>{% endblock %}

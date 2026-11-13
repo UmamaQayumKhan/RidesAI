@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Conversations{% endblock %}
+{% block heading %}Conversations{% endblock %}
+{% block subheading %}Every chat between customers and your AI agent.{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="tabs">
+    <a href="/conversations" class="tab {% if filter != 'human' %}active{% endif %}">All</a>
+    <a href="/conversations?filter=human" class="tab {% if filter == 'human' %}active{% endif %}">Needs a human</a>
+  </div>
+  {% if rows %}
+  <ul class="conv-list">
+    {% for conv, last_text, n in rows %}
+    <li>
+      <a href="/conversations/{{ conv.id }}" class="conv-item">
+        <div class="avatar">{{ (conv.customer.name or '?')[:1]|upper }}</div>
+        <div class="conv-body">
+          <div class="conv-top">
+            <b>{{ conv.customer.name or ('+' ~ conv.customer.phone) }}</b>
+            <span class="pill {% if conv.channel == 'whatsapp' %}pill-live{% else %}pill-demo{% endif %}">{{ 'WhatsApp' if conv.channel == 'whatsapp' else 'Demo' }}</span>
+            {% if conv.status == 'human' %}<span class="badge badge-human">Human needed</span>{% else %}<span class="badge badge-ai">AI</span>{% endif %}
+            <span class="muted small push">{{ conv.last_message_at|dt('%d %b, %H:%M') }}</span>
+          </div>
+          <div class="muted small truncate">{{ last_text or '' }}</div>
+        </div>
+        <span class="muted small">{{ n }} msgs</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}<div class="empty">No conversations yet. Start one in the <a href="/simulator">WhatsApp Simulator</a>.</div>{% endif %}
+</div>
+{% endblock %}

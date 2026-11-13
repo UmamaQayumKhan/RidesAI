@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block heading %}Dashboard{% endblock %}
+{% block subheading %}Overview of {{ business.name }}{% endblock %}
+{% block actions %}<a class="btn btn-ghost" href="/assistant">Ask AI Assistant</a><a class="btn btn-primary" href="/simulator">Open WhatsApp Simulator</a>{% endblock %}
+{% block content %}
+{% set cur = business.currency %}
+<div class="kpi-grid">
+  <div class="kpi"><div class="kpi-label">Revenue</div><div class="kpi-value">{{ stats.revenue_cents|money(cur) }}</div><div class="kpi-foot">Excludes cancelled orders</div></div>
+  <div class="kpi"><div class="kpi-label">Orders</div><div class="kpi-value">{{ stats.orders }}</div><div class="kpi-foot"><span class="badge badge-pending">{{ stats.pending_orders }} pending</span></div></div>
+  <div class="kpi"><div class="kpi-label">Customers</div><div class="kpi-value">{{ stats.customers }}</div><div class="kpi-foot">Avg order {{ stats.avg_order_cents|money(cur) }}</div></div>
+  <div class="kpi"><div class="kpi-label">Conversations</div><div class="kpi-value">{{ stats.conversations }}</div>
+    <div class="kpi-foot">{% if stats.needs_human %}<a href="/conversations?filter=human" class="badge badge-human">{{ stats.needs_human }} need a human</a>{% else %}All handled by AI{% endif %}</div></div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-head"><h3>Revenue, last 7 days</h3></div>
+    <div class="bars">
+      {% for d in stats.revenue_7d %}
+      <div class="bar-col" title="{{ d.cents|money(cur) }}">
+        <div class="bar-track"><div class="bar" style="height: {{ [d.pct, 2]|max }}%"></div></div>
+        <div class="bar-label">{{ d.label }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Orders by status</h3></div>
+    <div class="status-list">
+      {% for s, n in stats.by_status.items() %}
+      <a class="status-row" href="/orders?status={{ s }}"><span class="badge badge-{{ s }}">{{ s|capitalize }}</span><b>{{ n }}</b></a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="grid-2 grid-wide">
+  <div class="card">
+    <div class="card-head"><h3>Recent orders</h3><a href="/orders" class="link">View all</a></div>
+    {% if stats.recent_orders %}
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody>
+      {% for o in stats.recent_orders %}
+        <tr onclick="location.href='/orders/{{ o.id }}'" class="clickable">
+          <td><b>{{ o.number }}</b></td><td>{{ o.customer_name }}</td><td>{{ o.total_cents|money(cur) }}</td>
+          <td><span class="badge badge-{{ o.status }}">{{ o.status }}</span></td><td class="muted">{{ o.created_at|dt('%d %b') }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}
+      <div class="empty">No orders yet. Try placing one in the <a href="/simulator">WhatsApp Simulator</a>.</div>
+    {% endif %}
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Low stock</h3><a href="/products" class="link">Manage</a></div>
+    {% if stats.low_stock %}
+      <ul class="mini-list">
+      {% for p in stats.low_stock %}
+        <li><span>{{ p.name }}</span><span class="badge {% if p.stock == 0 %}badge-cancelled{% else %}badge-pending{% endif %}">{{ p.stock }} left</span></li>
+      {% endfor %}
+      </ul>
+    {% else %}<div class="empty">Stock levels look healthy.</div>{% endif %}
+  </div>
+</div>
+{% endblock %}

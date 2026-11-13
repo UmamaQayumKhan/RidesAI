@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Orders{% endblock %}
+{% block heading %}Orders{% endblock %}
+{% block subheading %}Orders placed by your AI agent after customer confirmation. Changing a status messages the customer automatically.{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="tabs">
+    <a href="/orders" class="tab {% if not current_status %}active{% endif %}">All</a>
+    {% for s in statuses %}<a href="/orders?status={{ s }}" class="tab {% if current_status == s %}active{% endif %}">{{ s|capitalize }}</a>{% endfor %}
+  </div>
+  {% if orders %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Source</th><th>Date</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for o in orders %}
+      <tr>
+        <td><a href="/orders/{{ o.id }}"><b>{{ o.number }}</b></a></td>
+        <td>{{ o.customer_name }}<div class="muted small">+{{ o.phone }}</div></td>
+        <td class="small">{% for i in o.items %}{{ i.quantity }} × {{ i.product_name }}{% if not loop.last %}<br>{% endif %}{% endfor %}</td>
+        <td><b>{{ o.total_cents|money(business.currency) }}</b></td>
+        <td><span class="pill {% if o.source == 'whatsapp' %}pill-live{% else %}pill-demo{% endif %}">{{ 'WhatsApp' if o.source == 'whatsapp' else 'Demo' }}</span></td>
+        <td class="muted small">{{ o.created_at|dt }}</td>
+        <td>
+          <form method="post" action="/orders/{{ o.id }}/status" class="inline-status">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+            <input type="hidden" name="next" value="/orders{% if current_status %}?status={{ current_status }}{% endif %}">
+            <select name="status" class="status-select badge-{{ o.status }}" onchange="this.form.submit()">
+              {% for s in statuses %}<option value="{{ s }}" {% if s == o.status %}selected{% endif %}>{{ s|capitalize }}</option>{% endfor %}
+            </select>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}
+    <div class="empty">No orders here yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

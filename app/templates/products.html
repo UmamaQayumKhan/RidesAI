@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Products{% endblock %}
+{% block heading %}Products{% endblock %}
+{% block subheading %}The AI agent only sells what is listed here, at these prices.{% endblock %}
+{% block actions %}<button class="btn btn-primary" onclick="openProductModal()">+ Add product</button>{% endblock %}
+{% block content %}
+<div class="card">
+  <form class="toolbar" method="get">
+    <input type="search" name="q" value="{{ q }}" placeholder="Search products...">
+    <button class="btn btn-ghost" type="submit">Search</button>
+  </form>
+  {% if products %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Product</th><th>SKU</th><th>Price</th><th>Stock</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for p in products %}
+      <tr>
+        <td><b>{{ p.name }}</b><div class="muted small truncate">{{ p.description }}</div></td>
+        <td class="muted">{{ p.sku or '—' }}</td>
+        <td>{{ p.price_cents|money(business.currency) }}</td>
+        <td>{% if p.stock == 0 %}<span class="badge badge-cancelled">Out of stock</span>{% elif p.stock <= 5 %}<span class="badge badge-pending">{{ p.stock }}</span>{% else %}{{ p.stock }}{% endif %}</td>
+        <td>{% if p.is_active %}<span class="badge badge-delivered">Active</span>{% else %}<span class="badge">Hidden</span>{% endif %}</td>
+        <td class="row-actions">
+          <button class="btn btn-ghost btn-sm" onclick='openProductModal({{ {"id": p.id, "name": p.name, "description": p.description, "sku": p.sku or "", "price": from_cents(p.price_cents)|string, "stock": p.stock, "is_active": p.is_active}|tojson }})'>Edit</button>
+          <form method="post" action="/products/{{ p.id }}/delete" onsubmit="return confirm('Delete {{ p.name|e }}?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+            <button class="btn btn-danger-ghost btn-sm" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}
+    <div class="empty">No products yet. Click <b>Add product</b> to create your first one.</div>
+  {% endif %}
+</div>
+
+<dialog id="productModal" class="modal">
+  <form method="post" id="productForm" class="form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+    <h3 id="productModalTitle">Add product</h3>
+    <label>Name<input name="name" required maxlength="120"></label>
+    <label>Description <span class="muted small">(the AI uses this to answer questions)</span><textarea name="description" rows="3" maxlength="2000"></textarea></label>
+    <div class="form-row">
+      <label>Price ({{ business.currency }})<input name="price" required inputmode="decimal" placeholder="1499.00"></label>
+      <label>Stock<input name="stock" type="number" min="0" value="0" required></label>
+      <label>SKU<input name="sku" maxlength="64"></label>
+    </div>
+    <label class="check"><input type="checkbox" name="is_active" value="true" checked> Active (visible to the AI agent)</label>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" onclick="document.getElementById('productModal').close()">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  </form>
+</dialog>
+{% endblock %}
+{% block scripts %}
+<script>
+function openProductModal(p) {
+  const form = document.getElementById('productForm');
+  form.reset();
+  document.getElementById('productModalTitle').textContent = p ? 'Edit product' : 'Add product';
+  form.action = p ? `/products/${p.id}/edit` : '/products';
+  if (p) {
+    form.name.value = p.name; form.description.value = p.description; form.sku.value = p.sku;
+    form.price.value = p.price; form.stock.value = p.stock; form.is_active.checked = p.is_active;
+  }
+  document.getElementById('productModal').showModal();
+}
+</script>
+{% endblock %}

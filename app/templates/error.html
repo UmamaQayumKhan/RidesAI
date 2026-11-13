@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Error {{ status }}{% endblock %}
+{% block auth %}
+<div class="error-page">
+  <div class="error-code">{{ status }}</div>
+  <p>{{ detail }}</p>
+  <a class="btn btn-primary" href="/dashboard">Back to dashboard</a>
+</div>
+{% endblock %}

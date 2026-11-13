@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Agent Settings{% endblock %}
+{% block heading %}Agent Settings{% endblock %}
+{% block subheading %}Shape how your AI agent talks, and connect WhatsApp.{% endblock %}
+{% block content %}
+<div class="grid-2 grid-wide">
+  <div class="card">
+    <div class="card-head"><h3>AI agent</h3>
+      {% if llm_configured %}<span class="badge badge-delivered">LLM connected · {{ llm_model }}</span>{% else %}<span class="badge badge-cancelled">No OPENAI_API_KEY in .env</span>{% endif %}
+    </div>
+    <form method="post" action="/settings/agent" class="form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+      <div class="form-row">
+        <label>Business name<input name="business_name" value="{{ business.name }}" required maxlength="120"></label>
+        <label>Currency<input name="currency" value="{{ business.currency }}" required maxlength="8"></label>
+        <label>Agent name<input name="agent_name" value="{{ agent.agent_name }}" required maxlength="60"></label>
+      </div>
+      <label>Instructions <span class="muted small">(tone, what to do, what to avoid)</span>
+        <textarea name="instructions" rows="5" maxlength="4000">{{ agent.instructions }}</textarea></label>
+      <label>Business information <span class="muted small">(delivery, payment, returns, hours...)</span>
+        <textarea name="business_info" rows="7" maxlength="8000">{{ agent.business_info }}</textarea></label>
+      <label>Hand-off message <span class="muted small">(sent when a chat is transferred to a human)</span>
+        <input name="handoff_message" value="{{ agent.handoff_message }}" maxlength="500"></label>
+      <button class="btn btn-primary" type="submit">Save agent settings</button>
+    </form>
+  </div>
+
+  <div class="stack" id="whatsapp">
+    <div class="card">
+      <div class="card-head"><h3>WhatsApp Cloud API</h3>
+        {% if wa.is_active %}<span class="pill pill-live">LIVE</span>{% else %}<span class="pill pill-demo">OFF · demo only</span>{% endif %}
+      </div>
+      <p class="small muted">From <b>developers.facebook.com → your app → WhatsApp → API Setup</b> and <b>App settings → Basic</b>.
+        Secrets are encrypted in the database and never shown again.</p>
+      <form method="post" action="/settings/whatsapp" class="form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+        <label>Phone number ID<input name="phone_number_id" value="{{ wa.phone_number_id }}" inputmode="numeric" placeholder="e.g. 123456789012345"></label>
+        <label>Access token {% if token_mask %}<span class="muted small">saved: {{ token_mask }}</span>{% endif %}
+          <input name="access_token" type="password" autocomplete="off" placeholder="{{ 'Leave blank to keep the saved token' if token_mask else 'EAAG...' }}"></label>
+        <label>App secret {% if secret_mask %}<span class="muted small">saved: {{ secret_mask }}</span>{% endif %}
+          <input name="app_secret" type="password" autocomplete="off" placeholder="{{ 'Leave blank to keep the saved secret' if secret_mask else 'Used to verify webhook signatures' }}"></label>
+        <label>Verify token <span class="muted small">(any secret word; paste the same in Meta)</span>
+          <input name="verify_token" value="{{ wa.verify_token }}" maxlength="128"></label>
+        <label class="check"><input type="checkbox" name="is_active" value="true" {% if wa.is_active %}checked{% endif %}> Live mode: answer real WhatsApp messages</label>
+        <button class="btn btn-primary" type="submit">Save WhatsApp settings</button>
+      </form>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Webhook for Meta</h3></div>
+      <p class="small">Callback URL:</p>
+      <div class="copy-box"><code id="webhookUrl">{{ webhook_url }}</code><button class="btn btn-ghost btn-sm" onclick="copyText('webhookUrl', this)">Copy</button></div>
+      <p class="small muted">Meta needs a public HTTPS URL. For local testing run a tunnel (e.g. <code>ngrok http 8000</code>) and set <code>PUBLIC_BASE_URL</code> in .env to the tunnel URL. Subscribe to the <b>messages</b> field.</p>
+      <form method="post" action="/settings/whatsapp/test" class="form form-inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+        <input name="to_phone" placeholder="Test number e.g. 923001234567" required>
+        <button class="btn btn-ghost" type="submit">Send test</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

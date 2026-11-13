@@ -2,7 +2,7 @@
 
 Built by **Umama Qayum Khan**, BS Computer Science, Iqra University Islamabad.
 
-📄 **[Full project documentation with all screens (PDF)](AgentDesk_Project_Documentation.pdf)** ·
+📄 **[Full project documentation with all screens (PDF)](AgentDesk_Project_Documentation.pdf)** · 🎬 [Demo video](docs/AgentDesk_Demo.mp4) · 🎤 [Interview guide](docs/INTERVIEW_GUIDE.md)
 
 AgentDesk lets a business connect an AI agent to WhatsApp. The agent works on **two sides**:
 

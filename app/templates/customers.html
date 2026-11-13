@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Customers{% endblock %}
+{% block heading %}Customers{% endblock %}
+{% block subheading %}Everyone who has messaged your AI agent.{% endblock %}
+{% block content %}
+<div class="card">
+  {% if rows %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Customer</th><th>Phone</th><th>Address</th><th>Orders</th><th>Total spent</th><th>First seen</th></tr></thead>
+    <tbody>
+    {% for c, n_orders, spent in rows %}
+      <tr>
+        <td><div class="cell-user"><div class="avatar avatar-sm">{{ (c.name or '?')[:1]|upper }}</div><b>{{ c.name or 'Unknown' }}</b></div></td>
+        <td>+{{ c.phone }}</td>
+        <td class="muted small truncate">{{ c.address or '—' }}</td>
+        <td>{{ n_orders }}</td>
+        <td>{{ spent|money(business.currency) }}</td>
+        <td class="muted small">{{ c.created_at|dt('%d %b %Y') }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}<div class="empty">No customers yet.</div>{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}AI Assistant{% endblock %}
+{% block heading %}AI Business Assistant{% endblock %}
+{% block subheading %}Manage your dashboard by chatting: orders, stock, prices and reports.{% endblock %}
+{% block actions %}<button class="btn btn-ghost" id="asClear">Clear chat</button>{% endblock %}
+{% block content %}
+{% if not llm_configured %}
+<div class="alert alert-error">The AI is not configured. Add <code>OPENAI_API_KEY</code> to your <code>.env</code> file and restart the server.</div>
+{% endif %}
+<div class="grid-2 grid-wide">
+  <div class="card chat-card">
+    <div class="chat-log" id="asChat">
+      <div class="empty" id="asEmpty">Ask me to manage your business. Try one of the examples on the right.</div>
+    </div>
+    <form class="chat-input" id="asForm">
+      <input id="asInput" placeholder="e.g. Mark order 6 as shipped" autocomplete="off" maxlength="4000" required>
+      <button class="btn btn-primary" type="submit">Send</button>
+    </form>
+  </div>
+  <div class="stack">
+    <div class="card">
+      <div class="card-head"><h3>Try asking</h3></div>
+      <div class="chips">
+        {% for q in [
+          "How did we do in the last 7 days?",
+          "Show pending orders",
+          "Mark the latest pending order as confirmed",
+          "Which products are low on stock?",
+          "Add 20 units to the phone case",
+          "Set the price of the smart watch to 9499",
+          "Add a new product: Wireless Mouse, price 1999, stock 30",
+          "Which chats need a human?"
+        ] %}<button type="button" class="chip" data-q="{{ q }}">{{ q }}</button>{% endfor %}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>How it works</h3></div>
+      <p class="small">The assistant uses the same tool-calling design as the customer agent, but with <b>owner tools</b>: sales reports, list and update orders, find, edit and add products, low-stock report, and chats needing a human.</p>
+      <p class="small muted">Every change appears as a green action chip and is saved to the dashboard straight away. Changing an order status also messages the customer automatically.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='js/assistant.js') }}"></script>{% endblock %}

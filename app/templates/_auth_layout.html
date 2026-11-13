@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block auth %}
+<div class="auth-wrap">
+  <div class="auth-side">
+    <div class="brand brand-light">
+      <div class="brand-logo">A</div>
+      <div><div class="brand-name">{{ settings.app_name }}</div><div class="brand-sub">AI Agent Platform</div></div>
+    </div>
+    <h2>Your 24/7 AI sales assistant on WhatsApp.</h2>
+    <ul class="auth-points">
+      <li>Answers product, price and stock questions from your real catalog</li>
+      <li>Takes orders and asks the customer to confirm first</li>
+      <li>Hands difficult chats to your team</li>
+      <li>Everything in one clean dashboard</li>
+    </ul>
+  </div>
+  <div class="auth-card">
+    {% block form %}{% endblock %}
+  </div>
+</div>
+{% endblock %}
