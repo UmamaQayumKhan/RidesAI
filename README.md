@@ -2,7 +2,13 @@
 
 Built by **Umama Qayum Khan**, BS Computer Science, Iqra University Islamabad.
 
-📄 **[Full project documentation with all screens (PDF)](AgentDesk_Project_Documentation.pdf)** · 🎬 [Demo video](docs/AgentDesk_Demo.mp4) · (docs/INTERVIEW_GUIDE.md)
+📄 **[Full project documentation with all screens (PDF)](AgentDesk_Project_Documentation.pdf)** · 🎬 [Demo video](docs/AgentDesk_Demo.mp4) · 🎤 [Interview guide](docs/INTERVIEW_GUIDE.md)
+
+## 🎬 Demo
+
+![AgentDesk demo](docs/demo.gif)
+
+*Customer orders on WhatsApp → order appears on the dashboard → owner tells the AI assistant "mark order 6 as shipped" → customer gets an automatic update. [Full video (MP4)](docs/AgentDesk_Demo.mp4)*
 
 AgentDesk lets a business connect an AI agent to WhatsApp. The agent works on **two sides**:
 
